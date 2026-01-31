@@ -1,5 +1,4 @@
-import { IngredientInput } from "@/components/IngredientInput"
-import { RecipeCard } from "@/components/RecipeCard"
+import { RecipeSection } from "@/components/RecipeSection"
 
 /**
  * Main landing page for the application.
@@ -20,16 +19,8 @@ export default function Home() {
           <div className="h-1 w-24 bg-orange-400 mx-auto rounded-full" />
         </header>
 
-        {/* Form and Result Section */}
-        <section className="w-full grid gap-8 md:gap-12">
-          <div className="bg-white p-6 md:p-8 rounded-2xl shadow-sm border border-orange-100">
-            <IngredientInput />
-          </div>
-          
-          <div className="w-full">
-            <RecipeCard />
-          </div>
-        </section>
+        {/* Form and Result Section coordinated by RecipeSection */}
+        <RecipeSection />
 
         {/* Footer Info */}
         <footer className="text-center text-sm text-gray-400 mt-8">

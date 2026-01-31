@@ -47,7 +47,8 @@
     - Create Vercel Edge Function at `/api/generateRecipe`.
     - Accept POST request with `ingredients[]` and optional `cuisine`.
 - **2.2 LLM Integration:**
-    - Integrate Kimi K2.5 (`moonshotai/Kimi-K2.5-TEE`) via [Chutes.ai API](https://llm.chutes.ai/v1/chat/completions).
+    - Primary: Integrate Google Gemini API (`gemini-2.5-flash`).
+    - Fallback: Chutes.ai (`moonshotai/Kimi-K2.5-TEE`) or OpenAI (`gpt-4o-mini`).
     - Prompt Engineering: Strict JSON output, `max_tokens: 1024`, `temperature: 0.7`.
 - **2.3 Validation & Error Handling:**
     - Validate LLM response against Zod schema.

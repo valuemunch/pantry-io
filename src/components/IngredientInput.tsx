@@ -4,6 +4,7 @@ import { useState } from "react"
 import { cn } from "@/utils/cn"
 import { z } from "zod"
 import { getRandomCuisine } from "@/app/actions"
+import type { Recipe } from "./RecipeCard"
 
 const ingredientsSchema = z.string()
   .transform((val) => val.split(",").map((i) => i.trim()).filter((i) => i.length > 0))
@@ -18,14 +19,22 @@ const ingredientsSchema = z.string()
   )
 
 interface IngredientInputProps {
+  onRecipeGenerated: (recipe: Recipe) => void
+  onLoading: (loading: boolean) => void
+  onError: (error: string) => void
   className?: string
 }
 
 /**
  * IngredientInput component handles the user input for 3 pantry ingredients.
- * Uses Zod for validation of exactly 3 ingredients and length constraints.
+ * Uses Zod for validation and triggers the recipe generation API.
  */
-export function IngredientInput({ className }: IngredientInputProps) {
+export function IngredientInput({ 
+  onRecipeGenerated, 
+  onLoading, 
+  onError, 
+  className 
+}: IngredientInputProps) {
   const [value, setValue] = useState("")
   const [error, setError] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -53,14 +62,36 @@ export function IngredientInput({ className }: IngredientInputProps) {
 
     setError(null)
     setIsSubmitting(true)
+    onLoading(true)
     
     const ingredients = result.data
-    // TODO: Phase 2 - Trigger API call
-    console.log("Generating recipe for:", ingredients)
     
-    setTimeout(() => {
+    try {
+      const response = await fetch('/api/generateRecipe', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ingredients,
+          cuisine: surpriseCuisine?.Name
+        }),
+      })
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ error: 'Failed to generate recipe' }))
+        throw new Error(errorData.error || 'Failed to generate recipe')
+      }
+
+      const recipe = await response.json()
+      onRecipeGenerated(recipe)
+    } catch (err: any) {
+      console.error('Recipe generation error:', err)
+      onError(err.message || 'Something went wrong while generating your recipe.')
+    } finally {
       setIsSubmitting(false)
-    }, 1000)
+      onLoading(false)
+    }
   }
 
   return (
@@ -87,6 +118,7 @@ export function IngredientInput({ className }: IngredientInputProps) {
               "focus:border-orange-500 focus:ring-orange-500 sm:text-sm p-4 border",
               error ? "border-red-300 bg-red-50" : "bg-gray-50/50"
             )}
+            disabled={isSubmitting}
           />
         </div>
         {error && (
@@ -100,7 +132,7 @@ export function IngredientInput({ className }: IngredientInputProps) {
         <button
           type="button"
           onClick={handleSurprise}
-          disabled={isSurprising}
+          disabled={isSurprising || isSubmitting}
           className={cn(
             "w-full flex items-center justify-center gap-2 py-3 px-4 border-2 border-orange-200 rounded-xl text-sm font-bold text-orange-600 transition-all duration-200",
             "hover:bg-orange-50 hover:border-orange-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-orange-500",
