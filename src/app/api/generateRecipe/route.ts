@@ -56,9 +56,8 @@ Return the recipe strictly in the following JSON format:
 }
 Constraints:
 - vibeName MUST be 30 characters or less.
-- Output MUST be a single line of minified JSON.
-- No markdown formatting, no backticks, no extra text.
-Only return the JSON string, no other text.`
+- Output MUST be a valid JSON object.
+- No extra text outside the JSON.`
 
     let response: Response
     let provider = ''
@@ -77,8 +76,21 @@ Only return the JSON string, no other text.`
           contents: [{ parts: [{ text: prompt }] }],
           generationConfig: {
             responseMimeType: "application/json",
+            responseSchema: {
+              type: "object",
+              properties: {
+                recipeTitle: { type: "string" },
+                vibeName: { type: "string" },
+                ingredients: { type: "array", items: { type: "string" } },
+                instructions: { type: "array", items: { type: "string" } },
+                prepTime: { type: "string" },
+                cookTime: { type: "string" },
+                servings: { type: "string" }
+              },
+              required: ["recipeTitle", "vibeName", "ingredients", "instructions", "prepTime", "cookTime", "servings"]
+            },
             temperature: 0.7,
-            maxOutputTokens: 1024,
+            maxOutputTokens: 2048,
           }
         })
       })
@@ -94,7 +106,7 @@ Only return the JSON string, no other text.`
         body: JSON.stringify({
           model,
           messages: [{ role: 'user', content: prompt }],
-          max_tokens: 1024,
+          max_tokens: 2048,
           temperature: 0.7,
           response_format: { type: 'json_object' }
         }),
@@ -111,7 +123,7 @@ Only return the JSON string, no other text.`
         body: JSON.stringify({
           model,
           messages: [{ role: 'user', content: prompt }],
-          max_tokens: 1024,
+          max_tokens: 2048,
           temperature: 0.7,
           response_format: { type: 'json_object' }
         }),
@@ -123,21 +135,27 @@ Only return the JSON string, no other text.`
       )
     }
 
+    const data = await response.json()
     const duration = Date.now() - startTime
-    console.log(`[Observability] LLM Latency: ${duration}ms | Model: ${model} | Provider: ${provider}`)
+    
+    let finishReason = ''
+    if (provider === 'Gemini') {
+      finishReason = data.candidates?.[0]?.finishReason || 'UNKNOWN'
+    } else {
+      finishReason = data.choices?.[0]?.finish_reason || 'UNKNOWN'
+    }
+
+    console.log(`[Observability] LLM Latency: ${duration}ms | Model: ${model} | Provider: ${provider} | Finish Reason: ${finishReason}`)
 
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}))
-      console.error(`${provider} API error:`, errorData)
+      console.error(`${provider} API error:`, data)
       return NextResponse.json(
-        { error: `Failed to generate recipe from ${provider}`, details: errorData },
+        { error: `Failed to generate recipe from ${provider}`, details: data },
         { status: 502 }
       )
     }
 
-    const data = await response.json()
     let content = ''
-
     if (provider === 'Gemini') {
       content = data.candidates?.[0]?.content?.parts?.[0]?.text || ''
     } else {
