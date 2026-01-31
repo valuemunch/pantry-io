@@ -2,7 +2,20 @@
 
 import { useState } from "react"
 import { cn } from "@/utils/cn"
+import { z } from "zod"
 import { getRandomCuisine } from "@/app/actions"
+
+const ingredientsSchema = z.string()
+  .transform((val) => val.split(",").map((i) => i.trim()).filter((i) => i.length > 0))
+  .refine((ingredients) => ingredients.length === 3, {
+    message: "Please enter exactly 3 ingredients separated by commas.",
+  })
+  .refine(
+    (ingredients) => ingredients.every((i) => i.length >= 2 && i.length <= 25),
+    {
+      message: "Each ingredient must be between 2 and 25 characters.",
+    }
+  )
 
 interface IngredientInputProps {
   className?: string
@@ -10,7 +23,7 @@ interface IngredientInputProps {
 
 /**
  * IngredientInput component handles the user input for 3 pantry ingredients.
- * Includes manual validation for exactly 3 ingredients and length constraints.
+ * Uses Zod for validation of exactly 3 ingredients and length constraints.
  */
 export function IngredientInput({ className }: IngredientInputProps) {
   const [value, setValue] = useState("")
@@ -18,25 +31,6 @@ export function IngredientInput({ className }: IngredientInputProps) {
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [surpriseCuisine, setSurpriseCuisine] = useState<{ Name: string, Emoji: string } | null>(null)
   const [isSurprising, setIsSurprising] = useState(false)
-
-  const validate = (input: string) => {
-    const ingredients = input
-      .split(",")
-      .map((i) => i.trim())
-      .filter((i) => i.length > 0)
-
-    if (ingredients.length !== 3) {
-      return "Please enter exactly 3 ingredients separated by commas."
-    }
-
-    for (const item of ingredients) {
-      if (item.length < 2 || item.length > 25) {
-        return `Ingredient "${item}" must be between 2 and 25 characters.`
-      }
-    }
-
-    return null
-  }
 
   const handleSurprise = async () => {
     setIsSurprising(true)
@@ -49,18 +43,20 @@ export function IngredientInput({ className }: IngredientInputProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    const validationError = validate(value)
     
-    if (validationError) {
-      setError(validationError)
+    const result = ingredientsSchema.safeParse(value)
+    
+    if (!result.success) {
+      setError(result.error.issues[0]?.message || "Invalid input")
       return
     }
 
     setError(null)
     setIsSubmitting(true)
     
+    const ingredients = result.data
     // TODO: Phase 2 - Trigger API call
-    console.log("Generating recipe for:", value.split(",").map(i => i.trim()))
+    console.log("Generating recipe for:", ingredients)
     
     setTimeout(() => {
       setIsSubmitting(false)

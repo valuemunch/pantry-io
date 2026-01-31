@@ -23,7 +23,7 @@
     - A button that randomly selects one cuisine style from a curated list of 30 global cuisines stored in Supabase.
     - UI should clearly display the selected cuisine style (e.g., "Make it Spicy Thai style").
 - **2.3 Recipe Generation:**
-    - Triggered by a POST request to an LLM API (GPT-4o or Claude).
+    - Triggered by a POST request to Kimi K2.5 (`moonshotai/Kimi-K2.5-TEE`) via Chutes.ai API.
     - Response Format: JSON object containing:
         - `recipeTitle`: String
         - `vibeName`: String (e.g., "Cozy Sunday Dinner")

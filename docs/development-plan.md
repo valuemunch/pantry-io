@@ -47,8 +47,8 @@
     - Create Vercel Edge Function at `/api/generateRecipe`.
     - Accept POST request with `ingredients[]` and optional `cuisine`.
 - **2.2 LLM Integration:**
-    - Integrate GPT-4o or Claude via SDK.
-    - Prompt Engineering: Strict JSON output, `max_tokens: 600`, `temperature: 0.7`.
+    - Integrate Kimi K2.5 (`moonshotai/Kimi-K2.5-TEE`) via [Chutes.ai API](https://llm.chutes.ai/v1/chat/completions).
+    - Prompt Engineering: Strict JSON output, `max_tokens: 1024`, `temperature: 0.7`.
 - **2.3 Validation & Error Handling:**
     - Validate LLM response against Zod schema.
     - Implement robust error handling (502 for LLM failures, 400 for bad input).

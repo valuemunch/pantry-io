@@ -23,7 +23,7 @@ This project is a PWA built with Next.js, Supabase, and Vercel. It leverages LLM
 - npm or pnpm
 - Supabase Account
 - Vercel Account
-- OpenAI API key
+- Chutes.ai API Token
 
 ### Installation
 
@@ -36,7 +36,7 @@ This project is a PWA built with Next.js, Supabase, and Vercel. It leverages LLM
    ```env
    NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
    NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
-   LLM_API_KEY=your_llm_api_key
+   CHUTES_API_TOKEN=your_chutes_api_token
    ```
 4. Run the development server:
    ```bash
