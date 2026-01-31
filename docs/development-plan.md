@@ -11,7 +11,7 @@
     - GitHub repository created: [https://github.com/valuemunch/hackathon](https://github.com/valuemunch/hackathon)
     - Setup `main` branch protection (require PRs, passing checks).
 - **0.2 Tech Stack Initialization:**
-    - Environment: Node 20, pnpm.
+    - Environment: Node 20, npm.
     - Framework: Next.js 14 (App Router).
     - Language: TypeScript (Strict Mode).
     - Styling: Tailwind CSS.
