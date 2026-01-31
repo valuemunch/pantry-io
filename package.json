@@ -10,7 +10,6 @@
     "test": "vitest"
   },
   "dependencies": {
-    "@rollup/rollup-win32-x64-msvc": "^4.57.1",
     "@supabase/ssr": "^0.8.0",
     "@supabase/supabase-js": "^2.93.3",
     "clsx": "^2.1.1",
